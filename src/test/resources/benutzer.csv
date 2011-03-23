@@ -1,0 +1,6 @@
+idbenutzer;email;vorname;nachname;kontonummer;bankleitzahl;passwort;newsletter;erstellungsdatum;aenderungsdatum
+1;rest1012@hs-karlsruhe.de;Stefan;Rellmann;1000;2000;webshop;false;28-10-2010 15:00:00;
+2;sast1011@hs-karlsruhe.de;Stephan;Sauer;1000;2000;webshop;false;28-10-2010 15:00:00;
+3;thro1011@hs-karlsruhe.de;Robert;Thummert;1000;2000;webshop;false;28-10-2010 15:00:00;
+4;scbe1015@hs-karlsruhe.de;Benjamin;Scheidt;1000;2000;webshop;F;28-10-2010 15:00:00;
+5;mopa1011@hs-karlsruhe.de;Patrick;Moser;1000;2000;webshop;false;28-10-2010 15:00:00;

@@ -1,0 +1,6 @@
+idbestellung;benutzer_idbenutzer;bestellstatus;zahlungsart;gesamtpreis;erstellungsdatum;aenderungsdatum
+1;2;WARENKORB;BAR;0.0;16-12-2001 12:00:00;
+2;2;BESTELLT;BAR;0.0;16-12-2001 12:00:00;
+3;1;WARENKORB;RECHNUNG;0.0;16-12-2001 12:00:00;
+4;4;WARENKORB;RECHNUNG;0.0;16-12-2001 12:00:00;
+5;4;WARENKORB;RECHNUNG;0.0;16-12-2001 12:00:00;

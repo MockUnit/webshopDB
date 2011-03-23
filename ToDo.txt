@@ -1,0 +1,6 @@
+-was ist default bei nullable?
+
+-finale Prüfung einzelner Tabellenspalten auf Korrektheit!
+-anschließende Aktualisierung des DB-Designs via DB DesignerFork!
+
+-mittels MAVEN DB aktualisieren 

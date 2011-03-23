@@ -1,0 +1,7 @@
+lager_id;artikel_id;farbe;groesse;bestand_ist;bestand_min
+1;1;BLAU;L;50;10
+2;1;ROT;M;60;10
+3;1;ROT;XL;20;5
+4;2;WEISS;S;10;5
+5;2;BLAU;XS;5;1
+6;2;WEISS;XXXXL;3;1

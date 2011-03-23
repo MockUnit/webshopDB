@@ -1,0 +1,13 @@
+idproduktbewertung;artikel_idartikel;benutzer_idbenutzer;bewertung;kommentar;erstellungsdatum
+1;2;1;3;Produkt ist OK;17.03.2003 17:00
+2;2;2;4;Produkt ist gut;17.03.2003 17:00
+3;2;3;1;schlechtes Produkt, geht zurueck;17.03.2003 17:00
+4;1;4;5;top produkt;17.03.2004 17:00
+5;1;5;3;awd;17.03.2003 17:00
+6;1;1;2;;17.03.2003 17:00
+7;2;2;4;;17.03.2003 17:00
+8;2;2;5;top produkt!!!!!;17.03.2003 17:00
+9;1;3;3;;17.03.2003 17:00
+10;1;1;4;;17.03.2010 17:00
+11;1;2;5;;17.03.2003 17:00
+12;1;3;2;sehr schlechtes produkt;17.03.2003 17:00

@@ -1,0 +1,352 @@
+<?xml version="1.0"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+<!--
+	Aufrufe:
+	mvn test					User, DB, Schema und Tabellen erstellen sowie Tabellen laden und in XML exportieren
+	mvn process-test-resources	User, DB, Schema und Tabellen erstellen sowie Tabellen laden
+	mvn process-resources		User, DB, Schema und Tabellen erstellen
+	mvn clean					User und DB loeschen
+	
+	Properties aus settings.xml: 
+	- admin.password	Passwort des Administrators von PostgreSQL
+	- user.password		Passwort des Anwendungs-Users
+	   
+	Weitere Properties muessen nicht ausgelagert werden. 
+-->
+
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>de.swe1</groupId>
+	<artifactId>postgresql</artifactId>
+	<version>1.0</version>
+	<name>postgresql</name>
+	
+	<scm>
+		<developerConnection>scm:svn:http://www.iwi.hs-karlsruhe.de/svn/swe1-g00/swe1DB/postgresql</developerConnection>
+		<url>http://www.iwi.hs-karlsruhe.de/svn/swe1-g00/swe1DB/postgresql</url>
+	</scm>
+	
+	<organization>
+		<name>Hochschule Karlsruhe</name>
+		<url>http://www.hs-karlsruhe.de</url>
+	</organization>
+	
+	<developers>
+		<developer>
+			<id>robert.thummert</id>
+			<name>Robert Thummert</name>
+			<email>thro1011@HS-Karlsruhe.de</email>
+			<url>http://www.iwi.hs-karlsruhe.de</url>
+			<organization>Hochschule Karlsruhe</organization>
+			<organizationUrl>http://www.iwi.hs-karlsruhe.de</organizationUrl>
+			<roles>
+				<role>Superman</role>
+			</roles>
+			<timezone>+1</timezone>     <!-- relativ zu GMT -->
+		</developer>
+		<developer>
+			<id>patrick.moser</id>
+			<name>Patrick Moser</name>
+			<email>mopa1011@HS-Karlsruhe.de</email>
+			<url>http://www.iwi.hs-karlsruhe.de</url>
+			<organization>Hochschule Karlsruhe</organization>
+			<organizationUrl>http://www.iwi.hs-karlsruhe.de</organizationUrl>
+			<roles>
+				<role>Batman</role>
+			</roles>
+			<timezone>+1</timezone>     <!-- relativ zu GMT -->
+		</developer>
+		<developer>
+			<id>benjamin.scheidt</id>
+			<name>Benny Scheidt</name>
+			<email>scbe1015@HS-Karlsruhe.de</email>
+			<url>http://www.iwi.hs-karlsruhe.de</url>
+			<organization>Hochschule Karlsruhe</organization>
+			<organizationUrl>http://www.iwi.hs-karlsruhe.de</organizationUrl>
+			<roles>
+				<role>Spongebob</role>
+			</roles>
+			<timezone>+1</timezone>     <!-- relativ zu GMT -->
+		</developer>
+		<developer>
+			<id>stefan.rellmann</id>
+			<name>Stefan Rellmann</name>
+			<email>rest1012@HS-Karlsruhe.de</email>
+			<url>http://www.iwi.hs-karlsruhe.de</url>
+			<organization>Hochschule Karlsruhe</organization>
+			<organizationUrl>http://www.iwi.hs-karlsruhe.de</organizationUrl>
+			<roles>
+				<role>Spiderman</role>
+			</roles>
+			<timezone>+1</timezone>     <!-- relativ zu GMT -->
+		</developer>
+		<developer>
+			<id>stephan.sauer</id>
+			<name>Stephan Sauer</name>
+			<email>sast1011@HS-Karlsruhe.de</email>
+			<url>http://www.iwi.hs-karlsruhe.de</url>
+			<organization>Hochschule Karlsruhe</organization>
+			<organizationUrl>http://www.iwi.hs-karlsruhe.de</organizationUrl>
+			<roles>
+				<role>Hulk</role>
+			</roles>
+			<timezone>+1</timezone>     <!-- relativ zu GMT -->
+		</developer>
+	</developers>
+
+	<properties>
+		<driver>org.postgresql.Driver</driver>
+		<driver.version>9.0-801.jdbc4</driver.version>
+		
+		<dbname>jbossdb</dbname>
+		<url>jdbc:postgresql:${dbname}</url>
+
+		<user>webshop</user>
+		<user.password>webshop</user.password>
+		<schema>${user}</schema>
+		
+		<sql.dir>src/main/resources</sql.dir>
+		<csv.dir>src/test/resources</csv.dir>
+
+		<xml.dir>${project.build.directory}/dbunit</xml.dir>
+		
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+	
+	<build>
+		<defaultGoal>test</defaultGoal>
+		
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>sql-maven-plugin</artifactId>
+				<version>1.3</version>   <!-- Mit 1.4 dauert das Anlegen von Triggern SEHR lange -->
+
+				<!-- JDBC Treiber -->
+				<dependencies>
+					<dependency>
+						<groupId>postgresql</groupId>
+						<artifactId>postgresql</artifactId>
+						<version>${driver.version}</version>
+					</dependency>
+				</dependencies>
+
+				<!-- Gemeinsame Konfiguration fuer alle Aufrufe -->
+				<configuration>
+					<driver>${driver}</driver>   <!-- siehe oben beim Tag properties -->
+					<url>${url}</url>
+					<username>postgres</username>
+					<password>${admin.password}</password>
+				</configuration>
+				
+				<executions>
+					<execution>
+						<id>create-user</id>
+						<phase>initialize</phase>
+						<goals>
+							<goal>execute</goal>
+						</goals>
+						
+						<!-- Ergaenzende Konfiguration -->
+						<configuration>
+							<!-- CREATE ROLE kann beim wiederholten Aufruf nicht mehr funktionieren -->
+							<onError>continue</onError>
+							<autocommit>true</autocommit>  <!-- CREATE DATABASE kann nicht in einem Transaktionsblock laufen -->
+							<sqlCommand>
+								CREATE ROLE ${user} LOGIN PASSWORD '${user.password}';
+							</sqlCommand>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>delete-schema</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>execute</goal>
+						</goals>
+						
+						<configuration>
+							<onError>continue</onError>
+							<sqlCommand>
+								DROP SCHEMA ${schema} CASCADE;
+							</sqlCommand>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>create-schema</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>execute</goal>
+						</goals>
+						
+						<configuration>
+							<sqlCommand>
+								CREATE SCHEMA ${schema} AUTHORIZATION ${user};
+							</sqlCommand>
+						</configuration>
+					</execution>
+					
+					<execution>
+						<id>create-tables</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>execute</goal>
+						</goals>
+						
+						<configuration>
+							<!-- Anwendungsuser wird Owner der Anwendungs-Tabellen -->
+							<username>${user}</username>
+							<password>${user.password}</password>
+							<srcFiles>
+								<srcFile>${sql.dir}/create-tables.sql</srcFile>
+							</srcFiles>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>create-trigger</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>execute</goal>
+						</goals>
+						
+						<configuration>
+							<username>${user}</username>
+							<password>${user.password}</password>
+							<!-- ";" in separater Zeile, weil ";" innerhalb von Trigger-Anweisungen benoetigt wird -->
+							<delimiterType>row</delimiterType>
+							<srcFiles>
+								<srcFile>${sql.dir}/create-trigger.sql</srcFile>
+							</srcFiles>
+						</configuration>
+					</execution>
+					
+					<execution>
+						<id>load</id>
+						<phase>process-test-resources</phase>
+						<goals>
+							<goal>execute</goal>
+						</goals>
+						
+						<!-- Ergaenzende Konfiguration -->
+						<configuration>
+							<srcFiles>
+								<!-- COPY darf nur durch Superuser ausgefuehrt werden -->
+								<srcFile>${sql.dir}/load-csv.sql</srcFile>
+								<srcFile>${sql.dir}/alter-seq.sql</srcFile>
+							</srcFiles>
+							<sqlCommand>
+								REVOKE CREATE ON SCHEMA ${schema} FROM ${user};
+							</sqlCommand>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>drop-schema-and-user</id>
+						<phase>clean</phase>
+						<goals>
+							<goal>execute</goal>
+						</goals>
+						
+						<!-- Ergaenzende Konfiguration -->
+						<configuration>
+							<onError>continue</onError>
+							<autocommit>true</autocommit>
+							<sqlCommand>
+								DROP SCHEMA ${schema} CASCADE;
+								DROP ROLE IF EXISTS ${user};
+							</sqlCommand>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.6</version>
+				
+				<executions>
+					<execution>
+						<id>generate-load-csv</id>
+						<phase>generate-test-resources</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+
+						<configuration>
+							<target>
+								<delete file="${basedir}/${sql.dir}/load-csv.sql"/>
+								<copy file="${sql.dir}/load-csv.template.sql" tofile="${sql.dir}/load-csv.sql">
+									<filterset>
+										<filter token="CSVDIR" value="${basedir}/${csv.dir}"/>
+									</filterset>
+								</copy>
+								<replace file="${sql.dir}/load-csv.sql" token="\" value="/"/>
+							</target>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>dbunit-maven-plugin</artifactId>
+				<version>1.0-beta-3</version>
+				
+				<dependencies>
+					<dependency>
+						<groupId>postgresql</groupId>
+						<artifactId>postgresql</artifactId>
+						<version>${driver.version}</version>
+					</dependency>
+				</dependencies>
+				
+				<configuration>
+					<driver>${driver}</driver>
+					<url>${url}</url>
+					<username>${user}</username>
+					<password>${user.password}</password>
+					<dataTypeFactoryName>org.dbunit.ext.postgresql.PostgresqlDataTypeFactory</dataTypeFactoryName>
+					<ordered>true</ordered>
+					<supportBatchStatement>true</supportBatchStatement>
+					<caseSensitiveTableNames>true</caseSensitiveTableNames>
+					<datatypeWarning>true</datatypeWarning>
+				</configuration>
+				
+				<executions>
+					<execution>
+						<id>export-dtd</id>
+						<phase>test</phase>
+						<goals>
+							<goal>export</goal>
+						</goals>
+
+						<configuration>
+							<format>dtd</format>
+							<dest>${xml.dir}/db.dtd</dest>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>export-flat-xml</id>
+						<phase>test</phase>
+						<goals>
+							<goal>export</goal>
+						</goals>
+
+						<configuration>
+							<format>flat</format>
+							<doctype>db.dtd</doctype>
+							<dest>${xml.dir}/db.xml</dest>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

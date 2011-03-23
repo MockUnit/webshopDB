@@ -1,0 +1,124 @@
+SET search_path TO swe1;
+-- SET default_tablespace = swe1_tbl_space;
+
+-- Anmerkung zu SERIAL bzw. BIGSERIAL und SEQUENCE:
+--    CREATE TABLE tablename (colname BIGSERIAL);
+--       entspricht
+--    CREATE SEQUENCE tablename_colname_seq;
+--    CREATE TABLE tablename( colname BIGINT DEFAULT nextval('tablename_colname_seq') NOT NULL);
+--
+-- analog entspricht SERIAL einer SEQUENCE mit INTEGER
+
+-- Anmerkung zu Constraints, z.B. NOT NULL, und zu INDEX:
+--   Besser waere es CREATE TABLE ohne Constraints und INDEXE durchzufuehren,
+--   anschliessend die Tabellen mit konsistenten Daten zu befuellen und danach
+--   erst die CONSTRAINTS mit ALTER TABLE zu definieren sowie CREATE INDEX
+--   durchzufuehren.
+--   Wenn gleich zu Beginn die Constraints definiert werden, werden sie
+--   bei jedem Einfuegen eines (konsistenten!) Datensatzes unnoetigerweise
+--   ueberprueft. Deshalb dauert der Einfuegevorgang laenger als noetig!
+
+CREATE TABLE IF NOT EXISTS kunde(
+	k_id BIGSERIAL NOT NULL PRIMARY KEY,
+	nachname VARCHAR(32) NOT NULL,
+	vorname VARCHAR(32),
+	seit DATE,
+	art CHAR(1) DEFAULT 'P',
+	plz CHAR(5) NOT NULL,
+	ort VARCHAR(32) NOT NULL,
+	strasse VARCHAR(32),
+	hausnr VARCHAR(4),
+	familienstand INTEGER,
+	geschlecht INTEGER,
+	newsletter BOOLEAN,
+	hobbies VARCHAR(128),
+	rabatt REAL NOT NULL,
+	umsatz DOUBLE PRECISION,
+	email VARCHAR(128) NOT NULL UNIQUE,
+	password VARCHAR(256),
+	erzeugt TIMESTAMP NOT NULL,
+	aktualisiert TIMESTAMP NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS kunde_details(
+	kunde_fk BIGINT NOT NULL PRIMARY KEY REFERENCES kunde(k_id),
+	details TEXT NOT NULL
+);
+
+
+CREATE TABLE IF NOT EXISTS betreuer(
+	b_id BIGSERIAL NOT NULL PRIMARY KEY,
+	name VARCHAR(32) NOT NULL,
+	kunde_fk BIGINT NOT NULL REFERENCES kunde(k_id),
+	erzeugt TIMESTAMP NOT NULL,
+	aktualisiert TIMESTAMP NOT NULL
+);
+CREATE INDEX betreuer_kunde_index ON betreuer(kunde_fk);
+
+
+CREATE TABLE IF NOT EXISTS wartungsvertrag(
+	nr INTEGER NOT NULL,
+	datum DATE NOT NULL,
+	inhalt TEXT DEFAULT '',
+	kunde_fk BIGINT NOT NULL REFERENCES kunde(k_id),
+	idx SMALLINT NOT NULL,
+	erzeugt TIMESTAMP NOT NULL,
+	aktualisiert TIMESTAMP NOT NULL,
+	PRIMARY KEY(nr, datum)
+);
+
+
+CREATE TABLE IF NOT EXISTS geschenkverpackung(
+	g_id BIGSERIAL NOT NULL PRIMARY KEY,
+	art VARCHAR(11) NOT NULL,
+	text TEXT,
+	erzeugt TIMESTAMP NOT NULL,
+	aktualisiert TIMESTAMP NOT NULL
+);
+
+
+CREATE TABLE IF NOT EXISTS bestellung(
+	b_id BIGSERIAL NOT NULL PRIMARY KEY,
+	kunde_fk BIGINT NOT NULL REFERENCES kunde(k_id),
+	idx SMALLINT,
+	geschenkverpackung_fk BIGINT REFERENCES geschenkverpackung(g_id),
+	erzeugt TIMESTAMP NOT NULL,
+	aktualisiert TIMESTAMP NOT NULL
+);
+CREATE INDEX bestellung_kunde_index ON bestellung(kunde_fk);
+CREATE INDEX bestellung_geschenkverpackung_index ON bestellung(geschenkverpackung_fk);
+
+CREATE TABLE IF NOT EXISTS artikel(
+	a_id BIGSERIAL NOT NULL PRIMARY KEY,
+	bezeichnung VARCHAR(32) NOT NULL,
+	preis DOUBLE PRECISION,
+	ausgesondert BOOLEAN,
+	erzeugt TIMESTAMP NOT NULL,
+	aktualisiert TIMESTAMP NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS bestellposition(
+	bp_id BIGSERIAL NOT NULL PRIMARY KEY,
+	bestellung_fk BIGINT NOT NULL REFERENCES bestellung(b_id),
+	artikel_fk BIGINT NOT NULL REFERENCES artikel(a_id),
+	anzahl SMALLINT NOT NULL,
+	idx SMALLINT
+);
+CREATE INDEX bestpos_best_index ON bestellposition(bestellung_fk);
+CREATE INDEX bestpos_artikel_index ON bestellposition(artikel_fk);
+
+CREATE TABLE IF NOT EXISTS lieferung(
+	l_id BIGSERIAL NOT NULL PRIMARY KEY,
+	liefernr VARCHAR(12) NOT NULL UNIQUE,
+	transport_art VARCHAR(7),
+	erzeugt TIMESTAMP NOT NULL,
+	aktualisiert TIMESTAMP NOT NULL
+);
+
+
+CREATE TABLE IF NOT EXISTS bestellung_lieferung(
+	bestellung_fk BIGINT NOT NULL REFERENCES bestellung(b_id),
+	lieferung_fk BIGINT NOT NULL REFERENCES lieferung(l_id),
+	idx SMALLINT NOT NULL,
+	PRIMARY KEY(bestellung_fk, lieferung_fk)
+);

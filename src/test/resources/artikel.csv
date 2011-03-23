@@ -1,0 +1,3 @@
+artikel_id;bezeichnung;preis;edatum;aedatum;imsortiment
+1;jacke;50;01-01-2006 00:00:00;01-01-2006 00:00:00;true
+2;hose;100;01-01-2006 00:00:00;01-01-2006 00:00:00;false
